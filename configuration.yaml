@@ -1,0 +1,70 @@
+homeassistant:
+  name: Dom Żwirki
+  latitude: !secret home_latitude
+  longitude: !secret home_longitude
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 1
+  unit_system: metric
+  time_zone: Europe/Warsaw
+  customize: !include customize.yaml
+
+frontend:
+config:
+http:
+updater:
+discovery:
+history:
+logbook:
+sun:
+
+# Enables a map showing the location of tracked devices
+# map:
+# Allows you to issue voice commands from the frontend in enabled browsers
+# conversation:
+# Text to speech
+# tts:
+#  - platform: google
+
+sensor:
+  - platform: yr
+  - platform: serial_pm
+    serial_device: /dev/ttyUSB0
+    name: PM Sensor
+    brand: novafitness,sds011
+  - platform: airvisual
+    api_key: !secret airvisual_api_key
+    monitored_conditions:
+      - us
+    latitude: !secret home_latitude
+    longitude: !secret home_longitude
+    radius: 500
+  - platform: template
+    sensors:
+      humidity_1:
+        value_template: "{{ states.fan.ap1.attributes.humidity }}"
+        friendly_name: "Bedroom Humidity"
+        unit_of_measurement: "%"
+      temperature_1:
+        value_template: "{{ states.fan.ap1.attributes.temperature }}"
+        friendly_name: "Bedroom Temperature"
+        unit_of_measurement: "°C"
+      aqi_1:
+        value_template: "{{ states.fan.ap1.attributes.aqi }}"
+        friendly_name: "Bedroom PM 2.5"
+        unit_of_measurement: "µg/m³"
+
+device_tracker:
+  - platform: nmap_tracker
+    hosts: 192.168.0.0/24
+    home_interval: 10
+    track_new_devices: no
+
+fan:
+  - platform: xiaomi_miio
+    name: ap1
+    host: 192.168.0.105
+    token: !secret ap1_token
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
