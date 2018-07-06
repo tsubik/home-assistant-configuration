@@ -11,6 +11,7 @@ homeassistant:
 frontend:
 config:
 http:
+  api_password: !secret web_password
 updater:
 discovery:
 history:
